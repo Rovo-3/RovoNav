@@ -64,17 +64,29 @@ while True:
           pitch = msg_attitude.pitch
           yaw = msg_attitude.yaw
     except AttributeError:
+<<<<<<< HEAD
           continue
+=======
+          pass
+>>>>>>> a10dc8ac4d883b7a1b70dcef5bd957f4a16c6ab6
     try:
           depth = msg_depth.alt
           lat = msg_position.lat
           lon= msg_position.lon 
     except AttributeError:
+<<<<<<< HEAD
           continue
     try:
           alt = msg_position.alt 
     except AttributeError:
           continue
+=======
+          pass
+    try:
+          alt = msg_position.alt 
+    except AttributeError:
+          pass
+>>>>>>> a10dc8ac4d883b7a1b70dcef5bd957f4a16c6ab6
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
         #     # Get latitude and longitude in degrees
