@@ -84,7 +84,7 @@ def set_target_attitude(roll, pitch, yaw):
 
 
 # Create the connection
-master = mavutil.mavlink_connection('udp:0.0.0.0:14550')
+master = mavutil.mavlink_connection('udp:0.0.0.0:14551')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
@@ -99,10 +99,10 @@ DEPTH_HOLD = 'ALT_HOLD'
 DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
 while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
-    
+
 while True:
     # set a depth target
-    set_target_depth(-5)
+    set_target_depth(-20)
     time.sleep(1)
      
 time.sleep(2)

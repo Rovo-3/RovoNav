@@ -157,7 +157,11 @@ while True:
             # Altitude above ground in meters
             alt_agl = msg.alt
             print("Altitude AGL:", alt_agl)
+<<<<<<< HEAD
         alt+=1
+=======
+        alt +=1
+>>>>>>> b49ec1bc54d26241e4a8b0f07577693d2a2e64e1
         plot(alt, lat, lon)
     time.sleep(1)
      
