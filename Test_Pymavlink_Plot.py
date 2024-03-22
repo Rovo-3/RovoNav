@@ -57,7 +57,7 @@ boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
 
-depth = alt= lon= lat = 0
+depth = pitch = alt = lon = lat = 0
 
 while True:
     msg_attitude = master.recv_match(type='ATTITUDE', blocking=False)
