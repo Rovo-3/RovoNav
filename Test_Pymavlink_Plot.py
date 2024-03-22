@@ -88,5 +88,5 @@ while True:
         #     alt_agl = msg.alt
             # print("Altitude AGL:", alt_agl)
     plot(depth, lat, lon)
-    time.sleep(1)
+    time.sleep(0.5)
   
