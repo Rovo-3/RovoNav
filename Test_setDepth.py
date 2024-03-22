@@ -65,35 +65,6 @@ def set_target_depth(depth):
         # accelerations in NED frame [N], yaw, yaw_rate
         #  (all not supported yet, ignored in GCS Mavlink)
     )
-time_elapsed = 0
-depth_array=np.array([])
-pos_x_array = np.array([])
-pos_y_array = np.array([])
-
-def plot(depth, pos_x, pos_y):
-        global time_elapsed
-        mytime = np.arange(0, time_elapsed, 1)
-        depth_array=np.append(depth_array, depth)
-        pos_x_array=np.append(pos_x_array, pos_x)
-        pos_y_array=np.append(pos_y_array, pos_y)
-        my_data = {"Depth":depth_array,
-                   "Position X":pos_x_array,
-                   "Position Y": pos_y_array
-                   }
-        print(my_data)
-        plt.clf()
-        plt.title("Graphs for Position X, Y, Z")
-        for i, (key, array) in enumerate(my_data):
-            plt.subplot(len(my_data), 1, i+1)
-            plt.plot(mytime[0:time_elapsed], array[0:time_elapsed],
-                label=key)
-            plt.ylabel('Value (m)')
-            plt.legend()
-
-        plt.draw()
-        plt.pause(0.05)
-        time_elapsed+=1
-
 
 def set_target_attitude(roll, pitch, yaw):
     """ Sets the target attitude while in depth-hold mode.
@@ -113,10 +84,10 @@ def set_target_attitude(roll, pitch, yaw):
 
 
 # Create the connection
-master = mavutil.mavlink_connection('tcp:localhost:5762')
+master = mavutil.mavlink_connection('udp:0.0.0.0:14550')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
-# master.wait_heartbeat()
+master.wait_heartbeat()
 
 # arm ArduSub autopilot and wait until confirmed
 master.arducopter_arm()
@@ -128,11 +99,12 @@ DEPTH_HOLD = 'ALT_HOLD'
 DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
 while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
-
-
-# set a depth target
-set_target_depth(-1.5)
-
+    
+while True:
+    # set a depth target
+    set_target_depth(-5)
+    time.sleep(1)
+     
 time.sleep(2)
 
 # go for a spin
