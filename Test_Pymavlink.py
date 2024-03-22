@@ -10,7 +10,8 @@ import math
 from pymavlink import mavutil
 # Imports for attitude
 from pymavlink.quaternion import QuaternionBase
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def set_rc_channel_pwm(channel_id, pwm=1500):
     """ Set RC channel pwm value
@@ -64,6 +65,59 @@ def set_target_depth(depth):
         # accelerations in NED frame [N], yaw, yaw_rate
         #  (all not supported yet, ignored in GCS Mavlink)
     )
+time = 0
+depth_arr=np.array([])
+pos_x_array = np.array([])
+pos_y_array = np.array([])
+def plot(depth, pos_x, pos_y):
+        mytime = np.arange(0, time, 1)
+        depth_arr=np.append(depth_arr, depth)
+        pos_x_array=np.append(pos_x_array, pos_x)
+        # self.opt_buoyancy_engine_rate=np.append(self.opt_buoyancy_engine_rate,self.br.NEWVAL)
+        # self.depth_sim=np.append(self.depth_sim,self.current_depth)
+        # self.pitch_angle_sim=np.append(self.pitch_angle_sim, self.current_pitch)
+        # self.depth_rate_sim=np.append(self.depth_rate_sim, self.current_depth_rate)
+        # self.setpointdepth_rate_sim=np.append(self.setpointdepth_rate_sim, self.depth_rate_sp)
+        # self.setpointdepth_sim=np.append(self.setpointdepth_sim, self.depth_sp)
+        # self.setpointpitch_angle_sim=np.append(self.setpointpitch_angle_sim,self.pitch_sp)
+        plt.clf()
+        # plt.figsize()
+        plt.subplot(4, 1, 1)
+        plt.title("MPC Control Gliding Simulation {}m/s Depth Rate".format(self.max_depth_rate))
+        # print(self.opt_moving_mass)
+        plt.plot(time[0:self.time], self.opt_moving_mass[0:self.time],
+                label='Moving Mass (Scaled by 20)')
+        plt.plot(time[0:self.time], self.opt_buoyancy_engine_rate[0:self.time], label='Buoyancy Engine')
+        plt.ylabel('Input')
+        plt.legend()
+        print("ini depth spdepth bos", self.setpointdepth_sim[0:self.time], time[0:self.time], self.setpointdepth_rate_sim[0:self.time])
+
+        plt.subplot(4, 1, 2)
+        plt.plot(time[0:self.time], self.depth_sim[0:self.time], label='Depth')
+        plt.plot(time[0:self.time],self.setpointdepth_sim[0:self.time], color='r', linestyle='--', label='Setpoint Depth')
+        plt.ylabel('Depth')
+        plt.legend()
+        # print("ini depth spdepth bos", setpointdepth_sim)
+
+        plt.subplot(4, 1, 3)
+        plt.plot(time[0:self.time], self.pitch_angle_sim[0:self.time], label='Pitch Angle')
+        plt.plot(time[0:self.time],self.setpointpitch_angle_sim[0:self.time], color='r',
+                    linestyle='--', label='Setpoint Pitch')
+        # plt.xlabel('Time (s)')
+        plt.ylabel('Pitch Angle')
+        plt.legend()
+
+        plt.subplot(4, 1, 4)  # Add a new subplot for depth rate
+        plt.plot(time[0:self.time], self.depth_rate_sim[0:self.time], label='Depth Rate')
+        plt.plot(time[0:self.time], self.setpointdepth_rate_sim[0:self.time], color='r',
+                linestyle='--', label='Setpoint Depth Rate')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Depth Rate')
+        plt.legend()
+
+        plt.draw()
+        plt.pause(0.05)
+        self.time+=1
 
 
 def set_target_attitude(roll, pitch, yaw):
