@@ -88,7 +88,7 @@ master = mavutil.mavlink_connection('udp:0.0.0.0:14551')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
-
+master.wait_heartbeat()
 # arm ArduSub autopilot and wait until confirmed
 master.arducopter_arm()
 master.motors_armed_wait()
