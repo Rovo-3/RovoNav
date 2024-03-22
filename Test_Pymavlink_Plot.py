@@ -29,7 +29,7 @@ def plot(depth, pos_x, pos_y, pitch):
         depth_array=np.append(depth_array, depth)
         pos_x_array=np.append(pos_x_array, pos_x)
         pos_y_array=np.append(pos_y_array, pos_y)
-        pitch=np.append(pitch_array, pitch)
+        pitch_array=np.append(pitch_array, pitch)
         my_data = {"Depth":depth_array,
                    "Position X":pos_x_array,
                    "Position Y": pos_y_array,
