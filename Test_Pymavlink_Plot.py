@@ -67,28 +67,28 @@ while True:
     msg_position = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
     #print(msg_position)
     try:
-          roll = msg_attitude.roll
-          pitch = msg_attitude.pitch*180/3.14
-          yaw = msg_attitude.yaw
+        roll = msg_attitude.roll
+        pitch = msg_attitude.pitch*180/3.14
+        yaw = msg_attitude.yaw
     except AttributeError:
-          pass
+        pass
     try:
-          depth = msg_depth.alt
-          lat = msg_position.lat / 1e7
-          lon= msg_position.lon / 1e7
-          u = utm.from_latlon(lat,lon)
-          if first:
-          	initial_x_position, initial_y_position = (u[0], u[1])
-          x=u[0] - initial_x_position
-          y=u[1] - initial_y_position
-          first = False
-          print(x,y)
+        depth = msg_depth.alt
+        lat = msg_position.lat / 1e7
+        lon= msg_position.lon / 1e7
+        u = utm.from_latlon(lat,lon)
+        if first:
+            initial_x_position, initial_y_position = (u[0], u[1])
+        x=u[0] - initial_x_position
+        y=u[1] - initial_y_position
+        first = False
+        print(x,y)
     except AttributeError:
-          pass
+        pass
     try:
-          alt = msg_position.alt 
+        alt = msg_position.alt 
     except AttributeError:
-          pass
+        pass
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
         #     # Get latitude and longitude in degrees
