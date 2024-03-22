@@ -63,17 +63,17 @@ while True:
           roll = msg_attitude.roll
           pitch = msg_attitude.pitch
           yaw = msg_attitude.yaw
-    except:
+    except AttributeError:
           continue
     try:
           depth = msg_depth.alt
           lat = msg_position.lat
           lon= msg_position.lon 
-    except:
+    except AttributeError:
           continue
     try:
           alt = msg_position.alt 
-    except:
+    except AttributeError:
           continue
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
@@ -96,5 +96,4 @@ while True:
         #     alt_agl = msg.alt
             # print("Altitude AGL:", alt_agl)
     plot(depth, lat, lon)
-    time.sleep(0.5)
   
