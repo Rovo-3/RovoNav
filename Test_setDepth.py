@@ -84,7 +84,7 @@ def set_target_attitude(roll, pitch, yaw):
 
 
 # Create the connection
-master = mavutil.mavlink_connection('udp:0.0.0.0:14551')
+master = mavutil.mavlink_connection('udp:0.0.0.0:2525')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
@@ -100,46 +100,12 @@ DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
 while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
 
+dRoll = 0
+dPitch = 40
+dYaw = 0
+
 while True:
     # set a depth target
-    set_target_depth(-20)
+    set_target_depth(-17)
+    set_target_attitude(dRoll, dPitch, dYaw)
     time.sleep(1)
-     
-time.sleep(2)
-
-# go for a spin
-# (set target yaw from 0 to 500 degrees in steps of 10, one update per second)
-roll_angle = 0
-pitch_angle = 40
-yaw_angle = 0
-
-set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-time.sleep(2)
-print("setting alt test")
-
-depth = 0.0
-setpoint = -5
-
-# while depth > setpoint:
-set_rc_channel_pwm(5, 1400)
-
-for depth in range(-1, -20, -1):
-    set_target_depth(depth)
-    set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-    time.sleep(2)  # wait for a second
-    # depth += 0.1
-
-set_rc_channel_pwm(5, 1500)
-
-# for yaw_angle in range(0, 500, 10):
-#     set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-#     time.sleep(1) # wait for a second
-
-# # spin the other way with 3x larger steps
-# for yaw_angle in range(500, 0, -30):
-#     set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-#     time.sleep(1)
-
-# clean up (disarm) at the end
-master.arducopter_disarm()
-master.motors_disarmed_wait()

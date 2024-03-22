@@ -87,6 +87,6 @@ while True:
         #     # Altitude above ground in meters
         #     alt_agl = msg.alt
             # print("Altitude AGL:", alt_agl)
-    plot(depth, lat, lon)
+    plot(depth, pitch, lon)
     time.sleep(1)
   
