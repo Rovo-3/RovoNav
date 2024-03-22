@@ -59,14 +59,22 @@ while True:
     msg_attitude = master.recv_match(type='ATTITUDE', blocking=False)
     msg_depth = master.recv_match(type='VFR_HUD', blocking=False)
     msg_position = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
-    if msg_attitude and msg_depth and msg_position is not None:
-            roll = msg_attitude.roll
-            pitch = msg_attitude.pitch
-            yaw = msg_attitude.yaw 
-            depth = msg_depth.alt 
-            lat = msg_position.lat
-            lon= msg_position.lon
-            alt = msg_position.alt
+    try:
+          roll = msg_attitude.roll
+          pitch = msg_attitude.pitch
+          yaw = msg_attitude.yaw
+    except:
+          continue
+    try:
+          depth = msg_depth.alt
+          lat = msg_position.lat
+          lon= msg_position.lon 
+    except:
+          continue
+    try:
+          alt = msg_position.alt 
+    except:
+          continue
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
         #     # Get latitude and longitude in degrees
