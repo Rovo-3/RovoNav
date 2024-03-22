@@ -78,4 +78,5 @@ while True:
             alt_agl = msg.alt
             print("Altitude AGL:", alt_agl)
         plot(alt, lat, lon)
+    time.sleep(1)
   

@@ -134,6 +134,7 @@ while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
 alt= lon= lat = 0
 
+set_target_depth(-1)
 while True:
     msg = master.recv_match()
     if msg is not None:
@@ -157,7 +158,6 @@ while True:
             alt_agl = msg.alt
             print("Altitude AGL:", alt_agl)
         plot(alt, lat, lon)
-    set_target_depth(-5)
     time.sleep(1)
      
 # set a depth target
