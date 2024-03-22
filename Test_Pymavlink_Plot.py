@@ -17,23 +17,27 @@ time_elapsed = 0
 depth_array=np.array([])
 pos_x_array = np.array([])
 pos_y_array = np.array([])
+pitch_array = np.array([])
 
-def plot(depth, pos_x, pos_y):
+def plot(depth, pos_x, pos_y, pitch):
         global time_elapsed
         global depth_array
         global pos_x_array
         global pos_y_array
+        global pitch_array
         mytime = np.arange(0, time_elapsed, 1)
         depth_array=np.append(depth_array, depth)
         pos_x_array=np.append(pos_x_array, pos_x)
         pos_y_array=np.append(pos_y_array, pos_y)
+        pitch=np.append(pitch_array, pitch)
         my_data = {"Depth":depth_array,
                    "Position X":pos_x_array,
-                   "Position Y": pos_y_array
+                   "Position Y": pos_y_array,
+                   "Pitch": pitch_array
                    }
         print(my_data)
         plt.clf()
-        plt.title("Graphs for Position X, Y, Z")
+        plt.title("Graphs for Position X, Y, Z, and Pitch")
         print(enumerate(my_data.items()))
         for i, (key, array) in enumerate(my_data.items()):
             plt.subplot(len(my_data), 1, i+1)
@@ -64,29 +68,17 @@ while True:
           pitch = msg_attitude.pitch
           yaw = msg_attitude.yaw
     except AttributeError:
-<<<<<<< HEAD
-          continue
-=======
           pass
->>>>>>> a10dc8ac4d883b7a1b70dcef5bd957f4a16c6ab6
     try:
           depth = msg_depth.alt
-          lat = msg_position.lat
-          lon= msg_position.lon 
+          lat = msg_position.lat/ 1e7
+          lon= msg_position.lon / 1e7
     except AttributeError:
-<<<<<<< HEAD
-          continue
-    try:
-          alt = msg_position.alt 
-    except AttributeError:
-          continue
-=======
           pass
     try:
           alt = msg_position.alt 
     except AttributeError:
           pass
->>>>>>> a10dc8ac4d883b7a1b70dcef5bd957f4a16c6ab6
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
         #     # Get latitude and longitude in degrees
@@ -107,5 +99,5 @@ while True:
         #     # Altitude above ground in meters
         #     alt_agl = msg.alt
             # print("Altitude AGL:", alt_agl)
-    plot(depth, lat, lon)
+    plot(depth, lat, lon, pitch)
   
