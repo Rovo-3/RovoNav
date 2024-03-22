@@ -3,7 +3,7 @@ Example of how to set target depth in depth hold mode with pymavlink
 """
 
 "Edited by Jason"
-
+import utm
 import time
 import math
 # Import mavutil
@@ -35,7 +35,7 @@ def plot(depth, pos_x, pos_y, pitch):
                    "Position Y": pos_y_array,
                    "Pitch": pitch_array
                    }
-        print(my_data)
+#        print(my_data)
         plt.clf()
         plt.title("Graphs for Position X, Y, Z, and Pitch")
         print(enumerate(my_data.items()))
@@ -58,21 +58,31 @@ boot_time = time.time()
 master.wait_heartbeat()
 
 depth = pitch = alt = lon = lat = 0
-
+initial_x_position = initial_y_position = 0
+first = True
+x = y = 0
 while True:
     msg_attitude = master.recv_match(type='ATTITUDE', blocking=False)
     msg_depth = master.recv_match(type='VFR_HUD', blocking=False)
     msg_position = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
+    #print(msg_position)
     try:
           roll = msg_attitude.roll
-          pitch = msg_attitude.pitch
+          pitch = msg_attitude.pitch*180/3.14
           yaw = msg_attitude.yaw
     except AttributeError:
           pass
     try:
           depth = msg_depth.alt
-          lat = msg_position.lat/ 1e7
+          lat = msg_position.lat / 1e7
           lon= msg_position.lon / 1e7
+          u = utm.from_latlon(lat,lon)
+          if first:
+          	initial_x_position, initial_y_position = (u[0], u[1])
+          x=u[0] - initial_x_position
+          y=u[1] - initial_y_position
+          first = False
+          print(x,y)
     except AttributeError:
           pass
     try:
@@ -99,5 +109,5 @@ while True:
         #     # Altitude above ground in meters
         #     alt_agl = msg.alt
             # print("Altitude AGL:", alt_agl)
-    plot(depth, lat, lon, pitch)
+    plot(depth, x, y, pitch)
   
