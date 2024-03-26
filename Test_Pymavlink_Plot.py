@@ -62,18 +62,25 @@ initial_x_position = initial_y_position = 0
 first = True
 x = y = 0
 while True:
-    msg_attitude = master.recv_match(type='ATTITUDE', blocking=False)
-    msg_depth = master.recv_match(type='VFR_HUD', blocking=False)
-    msg_position = master.recv_match(type='GLOBAL_POSITION_INT', blocking=False)
-    #print(msg_position)
+    #msg_attitude = master.recv_match(type='ATTITUDE', blocking=False)
+    #msg_depth = master.recv_match(type='VFR_HUD', blocking=False)
+    #try:
+    #    msg = master.recv_match().to_dict()
+    #    print(msg)
+    #except:
+    #    pass
+    
+    msg_position = master.recv_match(type='GLOBAL_POSITION_INT', blocking=True)
+    msg_attitude = master.recv_match(type='ATTITUDE', blocking=True)
+    msg_depth = master.recv_match(type='VFR_HUD', blocking=False)    
     try:
         roll = msg_attitude.roll
         pitch = msg_attitude.pitch*180/3.14
         yaw = msg_attitude.yaw
-    except AttributeError:
+    except:
         pass
     try:
-        depth = msg_depth.alt
+        depth = msg_position.alt
         lat = msg_position.lat / 1e7
         lon= msg_position.lon / 1e7
         u = utm.from_latlon(lat,lon)
@@ -83,11 +90,11 @@ while True:
         y=u[1] - initial_y_position
         first = False
         print(x,y)
-    except AttributeError:
+    except:
         pass
     try:
-        alt = msg_position.alt 
-    except AttributeError:
+        depth = msg_depth.alt 
+    except:
         pass
             # print(roll,pitch,yaw,depth)
         # if msg.get_type() == 'GLOBAL_POSITION_INT':
