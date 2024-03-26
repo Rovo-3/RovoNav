@@ -3,7 +3,7 @@ Example of how to use RC_CHANNEL_OVERRIDE messages to force input channels
 in Ardupilot. These effectively replace the input channels (from joystick
 or radio), NOT the output channels going to thrusters and servos.
 """
-
+import time
 # Import mavutil
 from pymavlink import mavutil
 
@@ -37,6 +37,7 @@ def set_rc_channel_pwm(channel_id, pwm=1500):
 seconds = [1,2,3,4,5,6,7,8,9,10]
 for i in seconds:
     set_rc_channel_pwm(3, 1550)
+    time.sleep(1)
 
 set_rc_channel_pwm(3, 1500)
 
