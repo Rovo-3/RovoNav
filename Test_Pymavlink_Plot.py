@@ -80,7 +80,7 @@ while True:
     except:
         pass
     try:
-        depth = msg_position.alt
+        alt = msg_position.alt
         lat = msg_position.lat / 1e7
         lon= msg_position.lon / 1e7
         u = utm.from_latlon(lat,lon)
@@ -93,7 +93,7 @@ while True:
     except:
         pass
     try:
-        alt = msg_depth.alt 
+        depth = msg_depth.alt 
     except:
         pass
             # print(roll,pitch,yaw,depth)
