@@ -93,7 +93,7 @@ while True:
     except:
         pass
     try:
-        depth = msg_depth.alt 
+        alt = msg_depth.alt 
     except:
         pass
             # print(roll,pitch,yaw,depth)
