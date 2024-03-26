@@ -38,7 +38,7 @@ def plot(depth, pos_x, pos_y, pitch):
 #        print(my_data)
         plt.clf()
         plt.title("Graphs for Position X, Y, Z, and Pitch")
-        print(enumerate(my_data.items()))
+#        print(enumerate(my_data.items()))
         for i, (key, array) in enumerate(my_data.items()):
             plt.subplot(len(my_data), 1, i+1)
             plt.plot(mytime[0:time_elapsed], array[0:time_elapsed],
