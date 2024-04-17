@@ -1,4 +1,5 @@
 # RovoNav
+Clone these scripts in both ROV/Companion and GCS.
 
 # How to clone
 go to terminal and use command `git clone https://github.com/Rovo-3/RovoNav/`
