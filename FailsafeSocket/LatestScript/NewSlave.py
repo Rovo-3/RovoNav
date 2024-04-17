@@ -55,7 +55,7 @@ try:
     while True:
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            print("SEARCHING NEW MASTER")
+            print("CONNECTION LOST: SEARCHING NEW MASTER")
 
             s.connect((bind_ip, bind_port))
             print("MASTER FOUND")
