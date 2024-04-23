@@ -5,9 +5,9 @@ import time
 import math
 from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
-import matplotlib.pyplot as plt
-import numpy as np
-import sys
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import sys
 import os
 
 # classes
@@ -19,23 +19,26 @@ class MySub:
         self.master=master_connection
         self.boot_time = boot_time
         self.is_armed = False
-        
         # return self.master
+
     def wait_heartbeat(self):
         self.master.wait_heartbeat()
         print("Got Heartbeat!")
+
     def arming(self):
         self.master.arducopter_arm()
         self.master.motors_armed_wait()
         self.is_armed=True
         print("Armed")
+
     def disarming(self):
         self.master.arducopter_disarm()
         self.master.motors_disarmed_wait()
         self.is_armed=False
         print("Disarmed")
+
     def set_rc_channel_pwm(self, channel_id, pwm=1500):
-        # flag check
+        # flag manual check
         # if self.mode != "MANUAL":
         #     print("Cannot set each channel of thruster other than manual mode")
         #     return
@@ -54,7 +57,7 @@ class MySub:
             print("Failed to set the RC channel PWM")
     def set_target_attitude(self, roll,pitch,yaw):
         """ Sets the target attitude while in depth-hold mode.
-
+        Args
         'roll', 'pitch', and 'yaw' are angles in degrees.
 
         """
@@ -142,15 +145,23 @@ class My_joystick:
         print('key number', key.number)
     def update_yaw(self):
         self.yaw_desired+=self.yaw_changes
+        if self.yaw_desired>360:
+            self.yaw_desired-=360
+        if self.yaw_desired<-360:
+            self.yaw_desired+=360
         return self.yaw_desired
     def update_pitch(self):
         self.pitch_desired += self.pitch_changes
+        if self.pitch_desired>110:
+            self.pitch_desired=110
+        if self.pitch_desired<-110:
+            self.pitch_desired=-110
         return self.pitch_desired
 
 if __name__ == "__main__":
     # setting up sub
-    # master = mavutil.mavlink_connection('udp:0.0.0.0:14445')
-    master = mavutil.mavlink_connection('udp:127.0.0.1:12346')
+    master = mavutil.mavlink_connection('tcp:127.0.0.1:5762')
+    # master = mavutil.mavlink_connection('udp:0.0.0.0:12346')
     boot_time = time.time()
     joystick_event = My_joystick()
     my_sub = MySub(master_connection=master, boot_time=boot_time)
