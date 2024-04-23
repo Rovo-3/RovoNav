@@ -36,8 +36,12 @@ def plot(depth, pos_x, pos_y, pitch):
                    "Pitch": pitch_array
                    }
 #        print(my_data)
+        
         plt.clf()
-        plt.title("Graphs for Position X, Y, Z, and Pitch")
+        plt.suptitle("Graphs for Position X, Y, Z, and Pitch")
+        # plt.cla()
+        
+        
 #        print(enumerate(my_data.items()))
         for i, (key, array) in enumerate(my_data.items()):
             plt.subplot(len(my_data), 1, i+1)
@@ -45,14 +49,14 @@ def plot(depth, pos_x, pos_y, pitch):
                 label=key)
             plt.ylabel('Value (m)')
             plt.legend()
-
+        
         plt.draw()
-        plt.pause(0.05)
+        plt.pause(0.1)
         time_elapsed+=1
 
 
 # Create the connection
-master = mavutil.mavlink_connection('udp:0.0.0.0:14550')
+master = mavutil.mavlink_connection('udp:0.0.0.0:14445')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()

@@ -84,11 +84,11 @@ def set_target_attitude(roll, pitch, yaw):
 
 
 # Create the connection
-master = mavutil.mavlink_connection('udp:0.0.0.0:14551')
+master = mavutil.mavlink_connection('tcp:127.0.0.1:5762')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
-master.wait_heartbeat()
+# master.wait_heartbeat()
 # arm ArduSub autopilot and wait until confirmed
 master.arducopter_arm()
 master.motors_armed_wait()
@@ -96,24 +96,38 @@ print("armed")
 
 # set the desired operating mode
 DEPTH_HOLD = 'ALT_HOLD'
-DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
-while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
-    master.set_mode(DEPTH_HOLD)
-
+POS_HOLD = 'POSHOLD'
+def change_mode(mode):
+    mode_now = master.mode_mapping()[mode]
+    while not master.wait_heartbeat().custom_mode == mode_now:
+        master.set_mode(mode)
+        print("changed to ", mode)
+change_mode(DEPTH_HOLD)
+roll_angle = 45
+pitch_angle = 110
+yaw_angle = 0
+mytime = 0
+# set_rc_channel_pwm(4, 1700)
 while True:
     # set a depth target
-    set_target_depth(-30)
+    set_target_attitude(roll_angle, pitch_angle, yaw_angle)
+    set_target_depth(10)
+    
     time.sleep(1)
-     
+    mytime+=1
+    # if(mytime == 10):
+    #     change_mode(POS_HOLD)
+
+
+
+
 time.sleep(2)
 
 # go for a spin
 # (set target yaw from 0 to 500 degrees in steps of 10, one update per second)
-roll_angle = 0
-pitch_angle = 40
-yaw_angle = 0
 
-set_target_attitude(roll_angle, pitch_angle, yaw_angle)
+
+
 time.sleep(2)
 print("setting alt test")
 
