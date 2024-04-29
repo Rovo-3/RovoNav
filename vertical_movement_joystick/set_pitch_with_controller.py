@@ -117,7 +117,7 @@ class My_joystick:
         print("Checking shift key status: ", self.is_shift_key)
 
         if self.is_shift_key == True:
-        #     # wait for the shift status
+            # wait for the shift status
             print("Checking the combination")
             self.check_combination(key.keytype, key.number, key.value)
         print("Does vertical mode active? ", self.activate_vertical_mode)
@@ -188,7 +188,6 @@ class My_joystick:
             if key.number == 2 or key.number == 5:
                 if abs(key.value)<0.2:
                     self.status = "HOLD"
-
 
 if __name__ == "__main__":
     # setting up sub mavlink connection
