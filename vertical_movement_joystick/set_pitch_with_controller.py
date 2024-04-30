@@ -70,6 +70,10 @@ class MySub:
             0, 0, 0, 0  # roll rate, pitch rate, yaw rate, thrust
         )
     def change_mode(self,mode):
+        """
+        Changing the mode of ROV. \n
+        Args is the mode of ROV in string ex. MANUAL, POS_HOLD, etc
+        """ 
         self.mode=mode
         if self.is_armed == False:
             self.arming()
@@ -92,6 +96,7 @@ class StoppableThread(threading.Thread):
     
 class My_joystick:
     def __init__(self,yaw_desired=0, pitch_desired=90):
+        
         print("Initialization of My_joystick")
         self.yaw_desired = yaw_desired
         self.yaw_changes = 0
@@ -99,10 +104,19 @@ class My_joystick:
         self.pitch_changes = 0
         self.status="HOLD"
         self.is_shift_key = False
-        # you can modify the shift key and the combination key for vertical mode activation
-        # those key will change the value of activate_vertical_mode
+        """
+        you can modify the shift key and the combination key for vertical mode activation
+        those key will change the value of activate_vertical_mode
+        rpy key can also be changed. For now yawing will use key number 0, while pitching will use 2 and 5.
+        """
         self.shift_key = 10
         self.vertical_mode_key = 1
+        self.rpy_key = {
+            "rpy_button":"Axis",
+            "yaw_key_number":0,
+            "pitch_down_key_number":2,
+            "pitch_down_key_number":5,
+        }
         self.activate_vertical_mode = False
     def print_add(self, joy):
         print('Added', joy)
@@ -111,55 +125,76 @@ class My_joystick:
         print('Removed', joy)
 
     def key_received(self, key):
-        # please add the the desired_yaw modifier
         # checking shift key
         self.check_shift(key.keytype, key.number, key.value)
         print("Checking shift key status: ", self.is_shift_key)
-
-        if self.is_shift_key == True:
-            # wait for the shift status
-            print("Checking the combination")
-            self.check_combination(key.keytype, key.number, key.value)
+            
+        self.check_combination(key.keytype, key.number, key.value)
         print("Does vertical mode active? ", self.activate_vertical_mode)
 
         if self.activate_vertical_mode:
             self.vertical_operation(key)
         
-        # if key.keytype =="-Axis":
-        print('received', key)
-        print('key type', key.keytype)
-        print('key value', key.value)
-        print('key number', key.number)
+        # # Uncomment this code to get the joystick keytype, number, and value
+        # print('received', key)
+        # print('key type', key.keytype)
+        # print('key number', key.number)
+        # print('key value', key.value)
     def update_yaw(self):
+        """
+        Updating yaw_desired and fixing it so that 0 <= yaw_desired < 360
+        """
         self.yaw_desired+=self.yaw_changes
         if self.yaw_desired>=360:
             self.yaw_desired-=360
         if self.yaw_desired<0:
             self.yaw_desired+=360
         return self.yaw_desired
+    
     def update_pitch(self):
+        """
+        Updating pitch_desired and fixing it desired so that -110 <= pitch_desired <= 110
+        """
         self.pitch_desired += self.pitch_changes
         if self.pitch_desired>110:
             self.pitch_desired=110
         if self.pitch_desired<-110:
             self.pitch_desired=-110
         return self.pitch_desired
+    
     def check_shift(self, type, number, value):
+        """
+        Checking the shift button is pressed, it will change the is shift key to True. \n
+        If other button is pressed then it will make deactivate vertical_mode
+        """
         if type == "Button" and number == self.shift_key and value == 1:
             self.is_shift_key=True
         elif type == "Button" and number == self.shift_key and value == 0: 
             self.is_shift_key=False
         elif type == "Button" and number != self.shift_key and value == 1:
             self.activate_vertical_mode=False
+
     def check_combination(self, type, number, value):
+        """
+        Checking the combination. It will only triggered when the shift_key is pressed.
+        """
+        print("Checking the combination")
+        if self.is_shift_key == False:
+            print("Shift Key is not pressed")
+            return
+        print("Shift Key is pressed! checking the combination key")
         if type == "Button" and number == self.vertical_mode_key and value == 1:
             self.activate_vertical_mode=not(self.activate_vertical_mode)
         elif type =="Button" and number != self.vertical_mode_key and value ==1:
             self.activate_vertical_mode=False
+
     def vertical_operation(self, key):
+        """
+        Handle the vertical operation key
+        """
         max_changes = 5
-        if key.keytype == "Axis":
-            if key.number == 0:
+        if key.keytype == self.rpy_key["rpy_button"]:
+            if key.number == self.rpy_key["yaw_key_number"]:
                 if abs(key.value)>0.2:
                     self.yaw_changes=max_changes*key.value
                 # elif key.value<-0.2:
@@ -168,16 +203,15 @@ class My_joystick:
                     self.yaw_changes=0
                 print("yaw changes ", self.yaw_changes)
                 self.yaw_changes = int(self.yaw_changes)
-            if key.number == 2:
+            if key.number == self.rpy_key["pitch_down_key_number"]:
                 if abs(key.value)>0.2:
                     self.pitch_changes=-1*max_changes*key.value
                 else:
                     self.pitch_changes=0
                 print("pitch changes ", self.pitch_changes)
-                # print("You hit the Axis!!")
                 self.pitch_changes = int(self.pitch_changes)
                 self.status = "PITCH_DOWN"
-            if key.number == 5:
+            if key.number == self.rpy_key["pitch_up_key_number"]:
                 if key.value>0.2:
                     self.pitch_changes=max_changes*key.value
                 else:
@@ -185,8 +219,9 @@ class My_joystick:
                 print("pitch changes ", self.pitch_changes)
                 self.pitch_changes = int(self.pitch_changes)
                 self.status = "PITCH_UP"
-            if key.number == 2 or key.number == 5:
+            if self.rpy_key["pitch_down_key_number"] or self.rpy_key["pitch_up_key_number"]:
                 if abs(key.value)<0.2:
+                    self.pitch_changes=0
                     self.status = "HOLD"
 
 if __name__ == "__main__":
@@ -207,7 +242,6 @@ if __name__ == "__main__":
             print("here we are on main loop")
             # This mode is trigerred by using shift key (button on the center, key number 10) with B key (key number 1)
             if joystick_event.activate_vertical_mode:
-                # Changing pitch and yaw desired
                 my_sub.change_mode("ALT_HOLD")
                 pitch_desired = joystick_event.update_pitch()
                 yaw_desired = joystick_event.update_yaw()
@@ -218,7 +252,6 @@ if __name__ == "__main__":
                 time.sleep(0.5)
                 # passing next code and go back to the new loop
                 pass
-            # sleep if the combination of vertical mode is not triggered
             time.sleep(1)
             print("Waiting for the custom mode command")
     except KeyboardInterrupt:
