@@ -1,0 +1,52 @@
+# Open or create a log file in write mode
+import datetime
+import time
+def getData():
+    sensors_data = {
+        "Date":10,
+        "Time":20,
+        "Param1":30,
+        "Param2":40,
+    }
+    return sensors_data
+
+if __name__ == "__main__":
+    isFirst=True
+    time_step = 1
+    file_name_base = "ROV_logs_.txt"
+    now = datetime.datetime.now()
+    timestamp = datetime.datetime.strptime(str(now), "%Y-%m-%d %H:%M:%S.%f")
+    formatted_timestamp = timestamp.strftime("%Y-%m-%d_%H-%M-%S")
+    print(formatted_timestamp)
+
+    file_name = "ROVlogs_"+formatted_timestamp+".txt"
+    print(file_name)
+    path=file_name
+    target = open(file_name, "a")
+    last_log = time.time()
+    # initialization of data
+    data = {
+        "Date":0,
+        "Time":0,
+        "Param1":0,
+        "Param2":0,
+    }
+    while True:
+        # change with data available from heartbeat
+        now = time.time()
+        if (now-last_log < time_step):
+            continue
+        sensor_data = getData()
+        data.update(sensor_data)
+        if isFirst:
+            keys = list(data.keys())
+            header = ','.join(keys) + '\n'
+            target.write(header)
+            isFirst=False
+        data_values = list(data.values())
+        # change to string
+        conv_data_val = [str(data_val) for data_val in data_values]
+        datas = ','.join(conv_data_val) + '\n'
+        target.write(datas)
+        last_log=time.time()
+        print(conv_data_val)
