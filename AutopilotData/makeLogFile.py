@@ -10,16 +10,16 @@ class Log:
         self.conn = mavutil.mavlink_connection(UdpIpPort)
         self.conn.wait_heartbeat()
         self.boot_time = time.time()
-        self.time_step = 1
+        self.time_step = 0.5
         self.isFirst = True
-        self.file_name_base = "ROV_logs_.txt"
+        self.file_name_base = "./log/ROV_logs_.txt"
         self.now = datetime.datetime.now()
         self.timestamp = datetime.datetime.strptime(
             str(self.now), "%Y-%m-%d %H:%M:%S.%f"
         )
         self.formatted_timestamp = self.timestamp.strftime("%Y-%m-%d_%H-%M-%S")
         print(self.formatted_timestamp)
-        self.file_name = "ROVlogs_" + self.formatted_timestamp + ".txt"
+        self.file_name = self.file_name_base + self.formatted_timestamp + ".txt"
         self.target_file = open(self.file_name, "a")
         self.data_log = {
             "Date": 0,
@@ -42,6 +42,7 @@ class Log:
         keys = list(self.data_log.keys())
         header = ",".join(keys) + "\n"
         self.target_file.write(header)
+        self.target_file.flush()
 
     def getData(self):
         imu = self.GetIMU()
@@ -77,21 +78,22 @@ class Log:
         return datetime.datetime.now().time()
 
 
-if __name__ == "__main__":
-    last_log = time.time()
-    logging = Log()
-    # main loop
-    while True:
-        # change with data available from heartbeat
-        now = time.time()
-        if now - last_log < logging.time_step:
-            continue
+# if __name__ == "__main__":
+last_log = time.time()
+logging = Log()
+# main loop
+while True:
+    # change with data available from heartbeat
+    now = time.time()
+    if now - last_log < logging.time_step:
+        continue
 
-        logging.getData()
-        data_values = list(logging.data_log.values())
-        # change to string
-        conv_data_val = [str(data_val) for data_val in data_values]
-        datas = ",".join(conv_data_val) + "\n"
-        logging.target_file.write(datas)
-        last_log = time.time()
-        print(conv_data_val)
+    logging.getData()
+    data_values = list(logging.data_log.values())
+    # change to string
+    conv_data_val = [str(data_val) for data_val in data_values]
+    datas = ",".join(conv_data_val) + "\n"
+    logging.target_file.write(datas)
+    logging.target_file.flush()
+    last_log = time.time()
+    print(conv_data_val)
