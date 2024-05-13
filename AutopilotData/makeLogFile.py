@@ -10,9 +10,8 @@ class Log:
         self.conn = mavutil.mavlink_connection(UdpIpPort)
         self.conn.wait_heartbeat()
         self.boot_time = time.time()
-        self.time_step = 0.5
         self.isFirst = True
-        self.file_name_base = "./log/ROV_logs_.txt"
+        self.file_name_base = "./log/ROV_logs_"
         self.now = datetime.datetime.now()
         self.timestamp = datetime.datetime.strptime(
             str(self.now), "%Y-%m-%d %H:%M:%S.%f"
@@ -35,6 +34,9 @@ class Log:
             "heading(degree)": 0,
             "altitude(m)": 0,
             "climbspeed(m/s)": 0,
+            "xacc": 0,
+            "yacc": 0,
+            "zacc": 0
         }
         self.createHeader()
 
@@ -47,6 +49,7 @@ class Log:
     def getData(self):
         imu = self.GetIMU()
         compass = self.GetVFRHUD()
+        accell = self.GetAccell()
         date = self.getDate()
         time_now = self.getTime()
         self.data_log["Date"] = date
@@ -62,6 +65,9 @@ class Log:
         self.data_log["heading(degree)"] = compass["heading"]
         self.data_log["altitude(m)"] = compass["alt"]
         self.data_log["climbspeed(m/s)"] = compass["climb"]
+        self.data_log["xacc"] = accell["xacc"] / 100
+        self.data_log["yacc"] = accell["yacc"] / 100
+        self.data_log["zacc"] = accell["zacc"] / 100
 
     def GetIMU(self):
         imuData = self.conn.recv_match(type="ATTITUDE", blocking=True)
@@ -71,6 +77,10 @@ class Log:
         vfrData = self.conn.recv_match(type="VFR_HUD", blocking=True)
         return vfrData.to_dict()
 
+    def GetAccell(self):
+        accellData = self.conn.recv_match(type="SCALED_IMU2", blocking=True)
+        return accellData.to_dict()
+
     def getDate(self):
         return datetime.datetime.now().date()
 
@@ -78,22 +88,16 @@ class Log:
         return datetime.datetime.now().time()
 
 
-# if __name__ == "__main__":
-last_log = time.time()
 logging = Log()
-# main loop
+
 while True:
-    # change with data available from heartbeat
-    now = time.time()
-    if now - last_log < logging.time_step:
-        continue
 
     logging.getData()
     data_values = list(logging.data_log.values())
-    # change to string
+    
     conv_data_val = [str(data_val) for data_val in data_values]
     datas = ",".join(conv_data_val) + "\n"
     logging.target_file.write(datas)
     logging.target_file.flush()
-    last_log = time.time()
+    
     print(conv_data_val)
