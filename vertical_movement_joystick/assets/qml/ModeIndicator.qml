@@ -43,7 +43,7 @@ Row {
                     console.log("changed index to " + index);
                 }
                 else{
-                checkboxtest.checked = 0;
+                activateCleaning.checked = 0;
                 }
                 _activeVehicle.flightMode = _flightModes[index];
                 console.log("Flight Mode now " + _activeVehicle.flightMode);
@@ -51,29 +51,21 @@ Row {
             }
         }
         QGCCheckBox{
-            id:checkboxtest
+            id:activateCleaning
             // x:0
             y:5
             text: qsTr("Vertical Movement")
             property var _activeVehicle:    QGroundControl.multiVehicleManager.activeVehicle
             property var _flightModes:      _activeVehicle ? _activeVehicle.flightModes : [ ]
-            property var mode_modean: _activeVehicle.flightMode
-            property var vertical_mode: _activeVehicle.verticalMode
-            // property bool isVerticalMode : false
-            onVertical_modeChanged: {
-                console.log("mau ganti bos ini ke vertical mode?")
-            }
+            property var modeNow: _activeVehicle.flightMode
 
-            onMode_modeanChanged: {
-                console.log("Modenya ganti!");
+            onModeNowChanged: {
+                console.log("Mode Changed!!");
                 if(_activeVehicle.flightMode !== "Depth Hold" ){
-                checked = 0
+                    checked = 0
                 }
                 if(_activeVehicle.flightMode == "Depth Hold" ){
                     var statusvertical = _activeVehicle.readJsonFile()
-                    console.log("ini hasil dari status vertical")
-                    console.log(statusvertical)
-                    console.log(statusvertical["isVerticalActive"])
                     checked = statusvertical["isVerticalActive"]
                 }
             }
@@ -86,8 +78,20 @@ Row {
                 _activeVehicle.updateJsonData(0);
                 checked = false
             }
-            // onCheckedActive:{
-            // }
         }
-        // signal checkedChangedSignal();
+        Timer {
+                property var _activeVehicle: QGroundControl.multiVehicleManager.activeVehicle
+                id: idkNewTimerIg
+                interval: 1000 // Check every second (adjust as needed)
+                repeat: true
+                running: true
+                onTriggered: {
+                    if(_activeVehicle.jsonHandler() === 0){
+                        activateCleaning.checked = 0;
+                    }
+                    else if(_activeVehicle.jsonHandler() === 1){
+                        activateCleaning.checked = 1;
+                    }
+                }
+        }
 }

@@ -1,4 +1,4 @@
-# QT Modification
+# QT BackEnd Modification
 Navigate and open Vehicle.h, insert this 2 line of code inside Vehicle class >> Public <br>
 
 ```
@@ -44,8 +44,10 @@ void Vehicle::updateJsonData(int data){
 
 ![alt text](./assets/vehiclecc.png)
 
+# QT FrontEnd Modification
 Navigate to ModeIndicator.qml and modify/replace with this
 [ModeIndicator.qml](./assets/qml/ModeIndicator.qml)
+
 
 ## Tips:
 to navigate use the search on QT Creator App

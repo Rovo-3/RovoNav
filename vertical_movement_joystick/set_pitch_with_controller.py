@@ -6,10 +6,6 @@ import math
 from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
 import json
-import sys
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import sys
 import os
 
 # classes
@@ -147,6 +143,7 @@ class My_joystick:
         # print('key type', key.keytype)
         # print('key number', key.number)
         # print('key value', key.value)
+        
     def update_yaw(self):
         """
         Updating yaw_desired and fixing it so that 0 <= yaw_desired < 360
@@ -254,7 +251,7 @@ class My_joystick:
 if __name__ == "__main__":
     # setting up sub mavlink connection
     master = mavutil.mavlink_connection('tcp:127.0.0.1:5762')
-    # master = mavutil.mavlink_connection('udp:0.0.0.0:12346')
+    # master = mavutil.mavlink_connection('udpout:0.0.0.0:12346')
     boot_time = time.time()
     # instantiation for joystick event and for the ROV
     my_joystick = My_joystick()
