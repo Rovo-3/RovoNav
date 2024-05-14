@@ -39,7 +39,9 @@ def GetVFRHUD():
 print("roll(degree), pitch(degree), yaw(degree), rollspeed(w), pitchspeed(w), yawspeed(w), airspeed(m/s), groundspeed(m/s), heading(degree), altitude(m), climbspeed(m/s)")
 
 while True:
-    try: 
+    try:
+        IMU2 = conn.recv_match(type="SCALED_IMU2", blocking=True)
+        print(IMU2.to_dict())
         imu = GetIMU()
         compass = GetVFRHUD()
         print("%.7f, %.7f, %.3f, %.7f, %.7f, %.7f, %.3f, %.3f, %d, %.3f, %.3f" % 

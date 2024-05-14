@@ -87,17 +87,17 @@ class Log:
     def getTime(self):
         return datetime.datetime.now().time()
 
+if __name__ == "__main__":
+    logging = Log()
 
-logging = Log()
+    while True:
 
-while True:
-
-    logging.getData()
-    data_values = list(logging.data_log.values())
-    
-    conv_data_val = [str(data_val) for data_val in data_values]
-    datas = ",".join(conv_data_val) + "\n"
-    logging.target_file.write(datas)
-    logging.target_file.flush()
-    
-    print(conv_data_val)
+        logging.getData()
+        data_values = list(logging.data_log.values())
+        
+        conv_data_val = [str(data_val) for data_val in data_values]
+        datas = ",".join(conv_data_val) + "\n"
+        logging.target_file.write(datas)
+        logging.target_file.flush()
+        
+        print(conv_data_val)

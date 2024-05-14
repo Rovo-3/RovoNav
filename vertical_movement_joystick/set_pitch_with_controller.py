@@ -21,11 +21,6 @@ class MySub:
         self.master=master_connection
         self.boot_time = boot_time
         self.is_armed = False
-        # please modify this path to the json folder
-        self.json_path = "C:/Users/Admin/Desktop/json_data/verticalMode.json"
-        self.vertical_data={
-            "isVerticalActive" : 0
-        }
 
     def wait_heartbeat(self):
         self.master.wait_heartbeat()
@@ -87,18 +82,7 @@ class MySub:
         mode_now = self.master.mode_mapping()[self.mode]
         while not self.master.wait_heartbeat().custom_mode == mode_now:
             self.master.set_mode(self.mode)
-            print("Mode changed to ", self.mode)
-    def read_json(self):
-        try:
-            with open(self.json_path, "r") as file:
-                self.vertical_data = json.load(file)
-            return self.vertical_data["isVerticalActive"]
-        except Exception as e:
-            print(e)
-            print(f"File '{self.json_path}' not found. Waiting for it to be created...")
-            with open(self.json_path, "w") as file:
-                json.dump(self.vertical_data, file)
-            print("JSON file is created")
+        print("Mode changed to ", self.mode)
 
 class StoppableThread(threading.Thread):
     def __init__(self):
@@ -133,9 +117,13 @@ class My_joystick:
             "rpy_button":"Axis",
             "yaw_key_number":0,
             "pitch_down_key_number":2,
-            "pitch_down_key_number":5,
+            "pitch_up_key_number":5,
         }
         self.activate_vertical_mode = False
+        self.json_path = "C:/Users/Admin/Desktop/json_data/verticalMode.json"
+        self.vertical_data={
+            "isVerticalActive" : 0
+        }
     def print_add(self, joy):
         print('Added', joy)
 
@@ -149,6 +137,7 @@ class My_joystick:
             
         self.check_combination(key.keytype, key.number, key.value)
         print("Does vertical mode active? ", self.activate_vertical_mode)
+        self.activate_vertical_mode=self.read_json()
 
         if self.activate_vertical_mode:
             self.vertical_operation(key)
@@ -191,6 +180,7 @@ class My_joystick:
             self.is_shift_key=False
         elif type == "Button" and number != self.shift_key and value == 1:
             self.activate_vertical_mode=False
+            self.modify_json(self.activate_vertical_mode)
 
     def check_combination(self, type, number, value):
         """
@@ -205,6 +195,7 @@ class My_joystick:
             self.activate_vertical_mode=not(self.activate_vertical_mode)
         elif type =="Button" and number != self.vertical_mode_key and value ==1:
             self.activate_vertical_mode=False
+        self.modify_json(self.activate_vertical_mode)
 
     def vertical_operation(self, key):
         """
@@ -241,6 +232,24 @@ class My_joystick:
                 if abs(key.value)<0.2:
                     self.pitch_changes=0
                     self.status = "HOLD"
+    def read_json(self):
+        print("reading JSON file")
+        try:
+            with open(self.json_path, "r") as file:
+                self.vertical_data = json.load(file)
+            return self.vertical_data["isVerticalActive"]
+        except Exception as e:
+            print(e)
+            print(f"File '{self.json_path}' not found. Waiting for it to be created...")
+            with open(self.json_path, "w") as file:
+                json.dump(self.vertical_data, file)
+            print("JSON file is created")
+
+    def modify_json(self, value):
+        with open(self.json_path, "w") as file:
+            self.vertical_data["isVerticalActive"]=int(value)
+            json.dump(self.vertical_data,file)
+        print("JSON file is modified")
 
 if __name__ == "__main__":
     # setting up sub mavlink connection
@@ -248,21 +257,23 @@ if __name__ == "__main__":
     # master = mavutil.mavlink_connection('udp:0.0.0.0:12346')
     boot_time = time.time()
     # instantiation for joystick event and for the ROV
-    joystick_event = My_joystick()
+    my_joystick = My_joystick()
     my_sub = MySub(master_connection=master, boot_time=boot_time)
     my_sub.wait_heartbeat()
     # make a thread for the joystick event
-    thread1 = threading.Thread(target=run_event_loop, args=(joystick_event.print_add, joystick_event.print_remove, joystick_event.key_received,True))
+    thread1 = threading.Thread(target=run_event_loop, args=(my_joystick.print_add, my_joystick.print_remove, my_joystick.key_received,))
     thread1.start()
     try:
         while True:
             # print("here we are on main loop")
             # This mode is trigerred by using shift key (button on the center, key number 10) with B key (key number 1)
-            vertical_mode_status = my_sub.read_json()
-            if joystick_event.activate_vertical_mode or vertical_mode_status:
+            vertical_mode_status = my_joystick.read_json()
+            # my_sub.compare_json(vertical_mode_status, my_joystick.activate_vertical_mode)
+
+            if vertical_mode_status:
                 my_sub.change_mode("ALT_HOLD")
-                pitch_desired = joystick_event.update_pitch()
-                yaw_desired = joystick_event.update_yaw()
+                pitch_desired = my_joystick.update_pitch()
+                yaw_desired = my_joystick.update_yaw()
                 roll_desired = 0
                 # Setting the rpy by the desired setpoint on default 0,90,0
                 my_sub.set_target_attitude(roll_desired, pitch_desired, yaw_desired)
@@ -274,7 +285,6 @@ if __name__ == "__main__":
             print("Waiting for the custom mode command")
     except KeyboardInterrupt:
         print("KeyboardInterrupt detected, stopping threads...")
-        # Disarming 
         my_sub.disarming()     
         # sys.exit(0)
         os._exit(1)
