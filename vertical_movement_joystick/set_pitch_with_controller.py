@@ -1,10 +1,12 @@
 # import necessary packages
-from pyjoystick.sdl2 import Key, run_event_loop
+from pyjoystick.sdl2 import Key, run_event_loop, stop_event_wait
 import threading
 import time
 import math
 from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
+import json
+import sys
 # import matplotlib.pyplot as plt
 # import numpy as np
 # import sys
@@ -19,6 +21,11 @@ class MySub:
         self.master=master_connection
         self.boot_time = boot_time
         self.is_armed = False
+        # please modify this path to the json folder
+        self.json_path = "C:/Users/Admin/Desktop/json_data/verticalMode.json"
+        self.vertical_data={
+            "isVerticalActive" : 0
+        }
 
     def wait_heartbeat(self):
         self.master.wait_heartbeat()
@@ -81,7 +88,18 @@ class MySub:
         while not self.master.wait_heartbeat().custom_mode == mode_now:
             self.master.set_mode(self.mode)
             print("Mode changed to ", self.mode)
-    
+    def read_json(self):
+        try:
+            with open(self.json_path, "r") as file:
+                self.vertical_data = json.load(file)
+            return self.vertical_data["isVerticalActive"]
+        except Exception as e:
+            print(e)
+            print(f"File '{self.json_path}' not found. Waiting for it to be created...")
+            with open(self.json_path, "w") as file:
+                json.dump(self.vertical_data, file)
+            print("JSON file is created")
+
 class StoppableThread(threading.Thread):
     def __init__(self):
         super().__init__()
@@ -234,14 +252,14 @@ if __name__ == "__main__":
     my_sub = MySub(master_connection=master, boot_time=boot_time)
     my_sub.wait_heartbeat()
     # make a thread for the joystick event
-    thread1 = threading.Thread(target=run_event_loop, args=(joystick_event.print_add, joystick_event.print_remove, joystick_event.key_received,))
+    thread1 = threading.Thread(target=run_event_loop, args=(joystick_event.print_add, joystick_event.print_remove, joystick_event.key_received,True))
     thread1.start()
-
     try:
         while True:
-            print("here we are on main loop")
+            # print("here we are on main loop")
             # This mode is trigerred by using shift key (button on the center, key number 10) with B key (key number 1)
-            if joystick_event.activate_vertical_mode:
+            vertical_mode_status = my_sub.read_json()
+            if joystick_event.activate_vertical_mode or vertical_mode_status:
                 my_sub.change_mode("ALT_HOLD")
                 pitch_desired = joystick_event.update_pitch()
                 yaw_desired = joystick_event.update_yaw()
@@ -257,6 +275,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KeyboardInterrupt detected, stopping threads...")
         # Disarming 
-        my_sub.disarming()
+        my_sub.disarming()     
+        # sys.exit(0)
         os._exit(1)
         # print("All threads have finished.")
