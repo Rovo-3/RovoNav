@@ -3,6 +3,7 @@ import time
 import datetime
 from pymavlink import mavutil
 
+import argparse
 
 class Log:
     def __init__(self, time_step=1):
@@ -40,22 +41,6 @@ class Log:
             "zacc": 0,
         }
         self.createHeader()
-
-        message_name = "MAVLINK_MSG_ID_VFR_HUD"
-        message_id = getattr(mavutil.mavlink, message_name)
-        self.conn.mav.command_long_send(
-            self.conn.target_system,
-            self.conn.target_component,
-            mavutil.mavlink.MAV_CMD_SET_MESSAGE_INTERVAL,
-            0,
-            message_id,
-            1e6 / 1,
-            0,
-            0,
-            0,
-            0,
-            0,
-        )
 
     def createHeader(self):
         keys = list(self.data_log.keys())
@@ -110,8 +95,13 @@ class Log:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-timeStep', type=float, default=1, help='addTimestep')
+    args = parser.parse_args()
+    print("Timestep: ", args.timeStep)
+    
     lastlog = time.time()
-    logging = Log(time_step=1)
+    logging = Log(time_step=args.timeStep)
 
     while True:
         logging.getData()
@@ -125,5 +115,5 @@ if __name__ == "__main__":
             logging.target_file.write(datas)
             logging.target_file.flush()
 
-            # print(conv_data_val)
+            print(conv_data_val)
             continue
