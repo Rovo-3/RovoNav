@@ -1,1 +1,1 @@
-python.exe ./makeLogFile.py
+python.exe ./makeLogFile.py -timeStep -1
